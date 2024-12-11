@@ -11,16 +11,17 @@ import { CustomButton } from "@/components/Onboarding/CustomButton";
 
 export default function OnboardingScreen() {
   const flatListRef = useAnimatedRef<FlatList<OnboardingData>>();
-  const flatlistIndex = useSharedValue(0);
+  const flatListIndex = useSharedValue(0);
   const x = useSharedValue(0);
 
+  // Päivitetään `flatlistIndex` vierityksen aikana
   const onViewableItemsChanged = ({
     viewableItems,
   }: {
     viewableItems: ViewToken[];
   }) => {
     if (viewableItems.length > 0 && viewableItems[0].index !== null) {
-      flatlistIndex.value = viewableItems[0].index!;
+      flatListIndex.value = viewableItems[0].index!;
     }
   };
 
@@ -31,30 +32,34 @@ export default function OnboardingScreen() {
   });
   return (
     <View style={styles.container}>
+      {/* Animoitu FlatList */}
       <Animated.FlatList
         ref={flatListRef}
-        onScroll={onScroll}
         data={onboardingData}
         renderItem={({ item, index }) => (
           <RenderItemOnBoarding item={item} index={index} x={x} />
         )}
+        horizontal
+        pagingEnabled
         scrollEventThrottle={16}
         showsHorizontalScrollIndicator={false}
         bounces={false}
-        horizontal={true}
-        pagingEnabled={true}
+        onScroll={onScroll}
         onViewableItemsChanged={onViewableItemsChanged}
         viewabilityConfig={{
           minimumViewTime: 300,
-          viewAreaCoveragePercentThreshold: 10,
+          viewAreaCoveragePercentThreshold: 50,
         }}
+        keyExtractor={(item) => item.id.toString()}
       />
+
+      {/* Pagination ja CustomButton footerissa */}
       <View style={styles.footer}>
         <Pagination data={onboardingData} x={x} />
         <CustomButton
           dataLength={onboardingData.length}
           flatListRef={flatListRef}
-          flatlistIndex={flatlistIndex}
+          flatlistIndex={flatListIndex}
           x={x}
         />
       </View>

@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import React from "react";
 import { OnboardingData } from "@/data/onboarding";
 import { SharedValue } from "react-native-reanimated";
@@ -13,7 +13,7 @@ export const Pagination = ({ data, x }: PaginationProps) => {
   return (
     <View style={styles.container}>
       {data.map((_, index) => (
-        <Dot key={index} index={index} x={x} />
+        <Dot key={index} x={x} index={index} />
       ))}
     </View>
   );

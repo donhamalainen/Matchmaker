@@ -24,23 +24,12 @@ export const Dot = ({ index, x }: DotProps) => {
         index * SCREEN_WIDTH, // Nykyinen sivu
         (index + 1) * SCREEN_WIDTH, // Seuraava sivu
       ],
-      [10, 20, 10], // Skaalaa sisääntulosta suureksi ja pienemmäksi
+      [10, 20, 10],
       Extrapolation.CLAMP
     );
 
-    const opacity = interpolate(
-      x.value,
-      [
-        (index - 1) * SCREEN_WIDTH, // Edellinen sivu
-        index * SCREEN_WIDTH, // Nykyinen sivu
-        (index + 1) * SCREEN_WIDTH, // Seuraava sivu
-      ],
-      [0.5, 1, 0.5], // Skaalaa sisääntulosta suureksi ja pienemmäksi
-      Extrapolation.CLAMP
-    );
     return {
       width: widthAnimation,
-      opacity,
     };
   });
 
@@ -54,14 +43,13 @@ export const Dot = ({ index, x }: DotProps) => {
       backgroundColor: backgroundColorAnimation,
     };
   });
-  return <Animated.View style={[styles.dot, animatedDot, animatedColor]} />;
+  return <Animated.View style={[styles.dot, animatedColor, animatedDot]} />;
 };
 
 const styles = StyleSheet.create({
   dot: {
     width: 10,
     height: 10,
-    backgroundColor: COLORS.black,
     borderRadius: 5,
     marginHorizontal: 10,
   },

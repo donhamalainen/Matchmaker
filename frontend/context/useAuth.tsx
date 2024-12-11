@@ -60,7 +60,7 @@ function useProtectedRoute(session: string | null) {
   useEffect(() => {
     const inAuth = segments[0] === "(auth)";
     if (!session && !inAuth) {
-      router.replace("/(auth)/continue");
+      router.replace("/(auth)/sign");
     } else if (session && inAuth) {
       router.replace("/(tabs)/home");
     }
