@@ -4,6 +4,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useState,
 } from "react";
 import { useStorageState } from "./useStorageState";
 import { useRouter, useSegments } from "expo-router";
@@ -19,6 +20,7 @@ type AuthType = {
     message: string;
     error?: boolean;
   }>;
+  onRegister: () => void;
   onLogout: () => void;
   session: string | null;
   isLoading: boolean;
@@ -34,6 +36,10 @@ const AuthContext = createContext<AuthType>({
   onLogin: async () => ({
     success: false,
     message: "Ei toteutettu",
+  }),
+  onRegister: () => ({
+    success: false,
+    message: "Ei rekisteröity",
   }),
   onLogout: () => {},
   session: null,
@@ -66,11 +72,6 @@ function useProtectedRoute(session: string | null) {
     }
   }, [session, segments]);
 }
-
-const withLoading = async () => {
-  // Simuloi toiminto
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-};
 
 export function AuthProvider({ children }: PropsWithChildren<{}>) {
   const [[isLoading, session], setSession] = useStorageState("session");
@@ -125,7 +126,7 @@ export function AuthProvider({ children }: PropsWithChildren<{}>) {
       };
     }
   };
-
+  const onRegister = async () => {};
   const onLogout = async () => {
     await setSession(null);
     delete axios.defaults.headers.common["Authorization"];
@@ -133,6 +134,7 @@ export function AuthProvider({ children }: PropsWithChildren<{}>) {
   return (
     <AuthContext.Provider
       value={{
+        onRegister,
         onLogin,
         onLogout,
         session,

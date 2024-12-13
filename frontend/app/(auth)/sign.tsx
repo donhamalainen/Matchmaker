@@ -1,71 +1,51 @@
 import { ScreenView } from "@/components/ScreenView";
 import { COLORS } from "@/constants/colors";
 import { Text } from "@/components/Text";
-import { Pressable, StyleSheet, View } from "react-native";
-import AntDesign from "@expo/vector-icons/AntDesign";
-import { router } from "expo-router";
-import { ICON_SIZE, ICON_SIZE_SMALL } from "@/constants/sizing";
+import {
+  StyleProp,
+  StyleSheet,
+  TextProps,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { useAuth } from "@/context/useAuth";
 
-export default function ContinueScreen() {
+export default function SignScreen() {
+  const { onLogin, onRegister } = useAuth();
   return (
     <ScreenView>
-      <View style={styles.content}>
-        <Button onPress={() => router.replace("/(auth)/sign")} />
-        <Text variant="bodySmall" style={styles.privacy}>
-          Jatkamalla hyväksyt sovellusen tietosuojaselosteen ja käyttöehdot.
-        </Text>
+      <View style={styles.header}></View>
+      <View style={styles.footer}>
+        <Button title="Jatka sähköpostilla" onPress={onRegister} />
+        <Button title="Jatka kirjautumatta" onPress={onRegister} />
       </View>
     </ScreenView>
   );
 }
 
-const Button = ({ onPress }: { onPress: () => void }) => {
+const Button = ({
+  style,
+  title,
+  onPress,
+}: {
+  style?: StyleProp<TextProps>;
+  title: string;
+  onPress: () => void;
+}) => {
   return (
-    <Pressable onPress={onPress} style={styles.button}>
-      <Text variant="buttonBody" style={styles.buttonText}>
-        Jatka
+    <TouchableOpacity style={styles.button} onPress={onPress}>
+      <Text variant="bodySmall" color={COLORS.black}>
+        {title}
       </Text>
-      <AntDesign
-        name="right"
-        size={ICON_SIZE_SMALL}
-        color={COLORS.black}
-        style={styles.icon}
-      />
-    </Pressable>
+    </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    position: "relative",
-    backgroundColor: COLORS.background,
-  },
-  content: {
-    flex: 1,
-    paddingBottom: 40,
-    justifyContent: "flex-end",
-  },
-  privacy: {
-    textAlign: "center",
-    marginTop: 20,
-  },
-  button: {
+  header: {},
+  footer: {
     width: "100%",
-    backgroundColor: COLORS.buttonBackground,
-    flexDirection: "row",
-    padding: 20,
-    borderRadius: 12,
-    justifyContent: "center",
-    alignItems: "center",
   },
 
-  buttonText: {
-    flex: 1,
-    textAlign: "center",
-  },
-  icon: {
-    position: "absolute",
-    right: 20,
-  },
+  button: {},
 });

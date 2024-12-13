@@ -1,15 +1,20 @@
 import { Slot } from "expo-router";
 import { hideAsync, preventAutoHideAsync } from "expo-splash-screen";
 import { useFonts } from "expo-font";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { AuthProvider } from "@/context/useAuth";
 import { StatusBar } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import SplashScreen from "@/components/Splash/SplashScreen";
 
 // Default things
 export { ErrorBoundary } from "expo-router";
+// SplashScreen
 preventAutoHideAsync();
 
 export default function RootLayout() {
+  const [ready, setReady] = useState(false);
+  const [splashAnimationFinished, setSplashAnimationFinished] = useState(false);
   const [loaded, error] = useFonts({
     ChillaxMedium: require("../assets/fonts/Chillax-Medium.otf"),
     ChillaxSemibold: require("../assets/fonts/Chillax-Semibold.otf"),
@@ -19,15 +24,26 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if (error) throw error;
-    if (loaded) hideAsync();
+    if (loaded || error) {
+      hideAsync();
+      setReady(true);
+    }
   }, [loaded, error]);
   if (!loaded && !error) return null;
 
+  const showTheSplash = !ready || !splashAnimationFinished;
+
   return (
-    <AuthProvider>
-      <StatusBar barStyle={"dark-content"} />
-      <Slot />
-    </AuthProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <AuthProvider>
+        <StatusBar barStyle={"dark-content"} />
+        <Slot />
+        {showTheSplash && (
+          <SplashScreen
+            onAnimationFinished={() => setSplashAnimationFinished(true)}
+          />
+        )}
+      </AuthProvider>
+    </GestureHandlerRootView>
   );
 }

@@ -2,91 +2,82 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const db = require("../database");
 const { signToken } = require("../utils/jwt");
+const generateOTP = require("../utils/otp");
 
 const router = express.Router();
 
-// POST /api/auth/login
-router.post("/login", async (req, res) => {
-  const { username, password } = req.body;
-  // Tarkista, että käyttäjänimi ja salasana on annettu
-  if (!username || !password) {
-    return res
-      .status(400)
-      .json({ error: "Käyttäjänimi ja salasana ovat pakollisia" });
-  }
+// POST /api/auth/request
+router.post("/request", async (req, res) => {
+  const { email } = req.body;
+  if (!email)
+    return res.status(400).json({ error: "Sähköposti on pakollinen" });
 
   try {
-    // Hae käyttäjä tietokannasta
-    const userResult = await db.query(
-      "SELECT * FROM users WHERE username = $1",
-      [username]
-    );
-    const user = userResult.rows[0];
+    const userData = await db.query("SELECT * FROM users WHERE email = $1", [
+      email,
+    ]);
+    const user = userData.rows[0];
 
-    if (!user) {
-      return res.status(401).json({ error: "Väärä käyttäjänimi tai salasana" });
+    // OTP
+    const otp = generateOTP();
+    //
+    if (user) {
+      await db.query("UPDATE users SET otp_verify = $1 WHERE email = $2", [
+        otp,
+        email,
+      ]);
+    } else {
+      // Create a new user
+      await db.query("INSERT INTO users (email, otp_verify) VALUES ($1, $2)", [
+        email,
+        otp,
+      ]);
     }
+    // Send OTP to the user's email
+    await sendEmailOTP(email, otp);
 
-    // Vertaile annettua salasanaa ja tietokantaan tallennettua hashattua salasanaa
-    const validPassword = await bcrypt.compare(password, user.password_hash);
-    if (!validPassword) {
-      return res.status(401).json({ error: "Väärä käyttäjänimi tai salasana" });
-    }
-
-    // Luo JWT-token
-    const token = signToken(user);
-    console.log({
-      token,
-      id: user.id,
-      username: user.username,
-      password_hash: user.password_hash,
-      created_at: user.created_at,
-      updated_at: user.updated_at,
-    });
-    res.status(200).json({ message: "Kirjautuminen onnistui", token, user });
+    res.status(200).json({ message: "OTP lähetetty sähköpostiin" });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Palvelinvirhe" });
+    res.status(500).json({ error: "Virhe OTP-koodin lähetyksessä" });
   }
 });
 
-// POST /api/auth/register
-router.post("/register", async (req, res) => {
+// POST /api/auth/verify
+router.post("/verify", async (req, res) => {
+  const { email, otp } = req.body;
+
+  if (!email || !otp)
+    return res.status(400).json({ error: "Sähköposti ja OTP ovat pakollisia" });
   try {
-    const { username, password } = req.body;
+    // Tarkista käyttäjä ja OTP tietokannasta
+    const userData = await db.query("SELECT * FROM users WHERE email = $1", [
+      email,
+    ]);
+    const user = userData.rows[0];
 
-    // Tarkista, että käyttäjänimi ja salasana on annettu
-    if (!username || !password) {
+    if (!user)
       return res
-        .status(400)
-        .json({ error: "Käyttäjänimi ja salasana ovat pakollisia" });
+        .status(404)
+        .json({ error: "Virheellinen sähköposti tai käyttäjää ei ole luotu" });
+
+    if (user.otp_verify !== otp || new Date() > new Date(user.otp_expire)) {
+      return res
+        .status(401)
+        .json({ error: "OTP on virheellinen tai vanhentunut" });
     }
 
-    // Tarkista, onko käyttäjänimi jo käytössä
-    const userExists = await db.query(
-      "SELECT * FROM users WHERE username = $1",
-      [username]
-    );
-    if (userExists.rows.length > 0) {
-      return res.status(409).json({ error: "Käyttäjänimi on jo käytössä" });
-    }
+    // Päivitä käyttäjän sähköposti varmennetuksi
+    await db.query("UPDATE users SET email_verified = TRUE WHERE email = $1", [
+      email,
+    ]);
 
-    // Hashaa salasana
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Tallenna uusi käyttäjä tietokantaan
-    const result = await db.query(
-      "INSERT INTO users (username, password_hash) VALUES ($1, $2)",
-      [username, hashedPassword]
-    );
-
-    console.log(result.rows[0]);
-    res
-      .status(201)
-      .json({ message: "Käyttäjä luotu onnistuneesti", user: req.user });
+    // Luo JWT-token käyttäjälle
+    const token = signToken(user);
+    res.status(200).json({ message: "Kirjautuminen onnistui", token, user });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "Käyttäjän rekisteröinnissä tapahtuivirhe" });
+    res.status(500).json({ error: "Virhe OTP:n tarkistuksessa" });
   }
 });
 

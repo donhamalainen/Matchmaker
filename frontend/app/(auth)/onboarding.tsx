@@ -21,7 +21,7 @@ export default function OnboardingScreen() {
     viewableItems: ViewToken[];
   }) => {
     if (viewableItems.length > 0 && viewableItems[0].index !== null) {
-      flatListIndex.value = viewableItems[0].index!;
+      flatListIndex.value = viewableItems[0].index;
     }
   };
 
@@ -36,19 +36,19 @@ export default function OnboardingScreen() {
       <Animated.FlatList
         ref={flatListRef}
         data={onboardingData}
+        onScroll={onScroll}
         renderItem={({ item, index }) => (
           <RenderItemOnBoarding item={item} index={index} x={x} />
         )}
         horizontal
         pagingEnabled
-        scrollEventThrottle={16}
         showsHorizontalScrollIndicator={false}
         bounces={false}
-        onScroll={onScroll}
+        scrollEventThrottle={16}
         onViewableItemsChanged={onViewableItemsChanged}
         viewabilityConfig={{
           minimumViewTime: 300,
-          viewAreaCoveragePercentThreshold: 50,
+          viewAreaCoveragePercentThreshold: 10,
         }}
         keyExtractor={(item) => item.id.toString()}
       />
@@ -83,39 +83,3 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
-/*
-
-<ScrollView
-        ref={scrollRef}
-        horizontal
-        // pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        onScroll={handleScroll}
-        scrollEventThrottle={16}
-      >
-        {onboardingData.map((item, index) => (
-          <View key={index} style={styles.slide}>
-            <Text>{item.title}</Text>
-          </View>
-        ))}
-      </ScrollView>
-      <View style={styles.footerContainer}>
-        <View style={styles.pagination}>
-          {onboardingData.map((_, index) => (
-            <View
-              key={index}
-              style={[
-                styles.dot,
-                activeIndex === index ? styles.activeDot : styles.inactiveDot,
-              ]}
-            />
-          ))}
-        </View>
-        <TouchableOpacity style={styles.button} onPress={handleNext}>
-        <Text variant="bodySmall" style={styles.buttonTextNext}>
-            Get
-          
-          <AntDesign name="right" size={24} color={COLORS.black} />
-        </TouchableOpacity>
-      </View>
-*/
