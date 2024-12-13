@@ -9,22 +9,12 @@ Content-Type: application/json
 }
 
 ### Autentikaatio
-POST http://localhost:3000/api/auth/login
+
+POST http://localhost:3000/api/auth/request 
 Content-Type: application/json
 
 {
-  "username": "testuser2",
-  "password": "testuser2"
-}
-
-###
-POST http://localhost:3000/api/auth/register
-Content-Type: application/json
-
-{
-  //"email": "hamalainen.don@gmail.com",
-  "username": "donhamalainen",
-  "password": "donhamalainen"
+  "email": "hamalainen.don@gmail.com"
 }
 
 ### Profiili

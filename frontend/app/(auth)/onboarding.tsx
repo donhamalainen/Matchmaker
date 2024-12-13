@@ -11,16 +11,17 @@ import { CustomButton } from "@/components/Onboarding/CustomButton";
 
 export default function OnboardingScreen() {
   const flatListRef = useAnimatedRef<FlatList<OnboardingData>>();
-  const flatlistIndex = useSharedValue(0);
+  const flatListIndex = useSharedValue(0);
   const x = useSharedValue(0);
 
+  // Päivitetään `flatlistIndex` vierityksen aikana
   const onViewableItemsChanged = ({
     viewableItems,
   }: {
     viewableItems: ViewToken[];
   }) => {
     if (viewableItems.length > 0 && viewableItems[0].index !== null) {
-      flatlistIndex.value = viewableItems[0].index!;
+      flatListIndex.value = viewableItems[0].index;
     }
   };
 
@@ -31,30 +32,34 @@ export default function OnboardingScreen() {
   });
   return (
     <View style={styles.container}>
+      {/* Animoitu FlatList */}
       <Animated.FlatList
         ref={flatListRef}
-        onScroll={onScroll}
         data={onboardingData}
+        onScroll={onScroll}
         renderItem={({ item, index }) => (
           <RenderItemOnBoarding item={item} index={index} x={x} />
         )}
-        scrollEventThrottle={16}
+        horizontal
+        pagingEnabled
         showsHorizontalScrollIndicator={false}
         bounces={false}
-        horizontal={true}
-        pagingEnabled={true}
+        scrollEventThrottle={16}
         onViewableItemsChanged={onViewableItemsChanged}
         viewabilityConfig={{
           minimumViewTime: 300,
           viewAreaCoveragePercentThreshold: 10,
         }}
+        keyExtractor={(item) => item.id.toString()}
       />
+
+      {/* Pagination ja CustomButton footerissa */}
       <View style={styles.footer}>
         <Pagination data={onboardingData} x={x} />
         <CustomButton
           dataLength={onboardingData.length}
           flatListRef={flatListRef}
-          flatlistIndex={flatlistIndex}
+          flatlistIndex={flatListIndex}
           x={x}
         />
       </View>
@@ -78,39 +83,3 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
 });
-/*
-
-<ScrollView
-        ref={scrollRef}
-        horizontal
-        // pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        onScroll={handleScroll}
-        scrollEventThrottle={16}
-      >
-        {onboardingData.map((item, index) => (
-          <View key={index} style={styles.slide}>
-            <Text>{item.title}</Text>
-          </View>
-        ))}
-      </ScrollView>
-      <View style={styles.footerContainer}>
-        <View style={styles.pagination}>
-          {onboardingData.map((_, index) => (
-            <View
-              key={index}
-              style={[
-                styles.dot,
-                activeIndex === index ? styles.activeDot : styles.inactiveDot,
-              ]}
-            />
-          ))}
-        </View>
-        <TouchableOpacity style={styles.button} onPress={handleNext}>
-        <Text variant="bodySmall" style={styles.buttonTextNext}>
-            Get
-          
-          <AntDesign name="right" size={24} color={COLORS.black} />
-        </TouchableOpacity>
-      </View>
-*/

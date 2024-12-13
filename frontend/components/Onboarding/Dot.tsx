@@ -1,4 +1,4 @@
-import { StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { StyleSheet, useWindowDimensions } from "react-native";
 import React from "react";
 import Animated, {
   Extrapolation,
@@ -16,52 +16,43 @@ type DotProps = {
 
 export const Dot = ({ index, x }: DotProps) => {
   const { width: SCREEN_WIDTH } = useWindowDimensions();
-  const animatedDot = useAnimatedStyle(() => {
-    const widthAnimation = interpolate(
-      x.value,
-      [
-        (index - 1) * SCREEN_WIDTH, // Edellinen sivu
-        index * SCREEN_WIDTH, // Nykyinen sivu
-        (index + 1) * SCREEN_WIDTH, // Seuraava sivu
-      ],
-      [10, 20, 10], // Skaalaa sisääntulosta suureksi ja pienemmäksi
-      Extrapolation.CLAMP
-    );
+  const inputRange = [
+    (index - 1) * SCREEN_WIDTH,
+    index * SCREEN_WIDTH,
+    (index + 1) * SCREEN_WIDTH,
+  ];
+  const extrapolation = Extrapolation.CLAMP;
 
+  const animatedDot = useAnimatedStyle(() => {
+    const width = interpolate(x.value, inputRange, [10, 20, 10], extrapolation);
     const opacity = interpolate(
       x.value,
-      [
-        (index - 1) * SCREEN_WIDTH, // Edellinen sivu
-        index * SCREEN_WIDTH, // Nykyinen sivu
-        (index + 1) * SCREEN_WIDTH, // Seuraava sivu
-      ],
-      [0.5, 1, 0.5], // Skaalaa sisääntulosta suureksi ja pienemmäksi
-      Extrapolation.CLAMP
+      inputRange,
+      [0.5, 1, 0.5],
+      extrapolation
     );
     return {
-      width: widthAnimation,
+      width,
       opacity,
     };
   });
 
   const animatedColor = useAnimatedStyle(() => {
-    const backgroundColorAnimation = interpolateColor(
+    const backgroundColor = interpolateColor(
       x.value,
       [0, SCREEN_WIDTH, 2 * SCREEN_WIDTH],
       [COLORS.onBoardFirst, COLORS.onBoardSecond, COLORS.onBoardThird]
     );
     return {
-      backgroundColor: backgroundColorAnimation,
+      backgroundColor,
     };
   });
-  return <Animated.View style={[styles.dot, animatedDot, animatedColor]} />;
+  return <Animated.View style={[styles.dot, animatedColor, animatedDot]} />;
 };
 
 const styles = StyleSheet.create({
   dot: {
-    width: 10,
     height: 10,
-    backgroundColor: COLORS.black,
     borderRadius: 5,
     marginHorizontal: 10,
   },

@@ -94,7 +94,7 @@ export const CustomButton = ({
           });
         } else {
           saveOnboardingStatus();
-          router.replace("/(auth)/continue");
+          router.replace("/(auth)/sign");
         }
       }}
     >

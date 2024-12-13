@@ -6,21 +6,21 @@ export interface OnboardingData {
 }
 const onboardingData: OnboardingData[] = [
   {
-    id: 1,
+    id: 0,
     title: "Haasta.",
-    description: "Haasta ystäväsi otteluihin ja liity turnauksiin!",
+    description: "Vastaanota ystäväsi haasteet tai laita itse haaste menemään.",
     backgroundColor: "#FCF596",
   },
   {
-    id: 2,
+    id: 1,
     title: "Voita.",
     description: "Näytä taitosi ja ansaitse kunniaa!",
     backgroundColor: "#C2FFC7",
   },
   {
-    id: 3,
-    title: "Seuraa.",
-    description: "Seuraa tuloksiasi ja paranna suoritustasi.",
+    id: 2,
+    title: "Träkkää.",
+    description: "Tuuriako? Anna tilastojen puhua puolestasi",
     backgroundColor: "#FFF1DB",
   },
 ];

@@ -14,6 +14,7 @@ export const COLORS = {
   onBoardFirst: "#AF1740",
   onBoardSecond: "#355F2E",
   onBoardThird: "#9A7E6F",
+
   // Default
   white: "#FFFFFF",
   black: "#2A3335",

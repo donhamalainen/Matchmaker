@@ -10,6 +10,7 @@ import Animated, {
   SharedValue,
   useAnimatedStyle,
 } from "react-native-reanimated";
+import { SCREEN_PADDING } from "@/constants/spacing";
 
 type RenderItemProps = {
   item: OnboardingData;
@@ -79,6 +80,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
+    paddingHorizontal: SCREEN_PADDING,
   },
   circleContainer: {
     ...StyleSheet.absoluteFillObject,
