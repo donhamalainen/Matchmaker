@@ -50,7 +50,7 @@ const SplashScreen = ({ onAnimationFinished }: SplashScreenProps) => {
 
   return (
     <Animated.View style={[styles.container, containerStyle]}>
-      <Animated.Text style={[styles.text]}>Matchmaker</Animated.Text>
+      <Animated.Text style={[styles.text]}>Matsi</Animated.Text>
     </Animated.View>
   );
 };

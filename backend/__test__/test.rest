@@ -16,6 +16,14 @@ Content-Type: application/json
 {
   "email": "hamalainen.don@gmail.com"
 }
+### 
+POST http://localhost:3000/api/auth/verify 
+Content-Type: application/json
+
+{
+  "email": "hamalainen.don@gmail.com",
+  "otp": "511834"
+}
 
 ### Profiili
 

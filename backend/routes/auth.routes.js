@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const db = require("../database");
 const { signToken } = require("../utils/jwt");
 const generateOTP = require("../utils/otp");
+const sendEmailOTP = require("../utils/sendEmailOTP");
 
 const router = express.Router();
 

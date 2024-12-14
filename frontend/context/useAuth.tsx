@@ -1,26 +1,23 @@
-import {
-  createContext,
-  PropsWithChildren,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import { createContext, PropsWithChildren, useContext, useEffect } from "react";
 import { useStorageState } from "./useStorageState";
 import { useRouter, useSegments } from "expo-router";
 import axios from "axios";
 import { getStorageItemAsync } from "@/utils/storage";
 
 type AuthType = {
-  onLogin: (
-    username: string,
-    password: string
+  onLogin: (email: string) => Promise<{
+    success: boolean;
+    message: string;
+    error?: boolean;
+  }>;
+  onVerify: (
+    email: string,
+    otp: string
   ) => Promise<{
     success: boolean;
     message: string;
     error?: boolean;
   }>;
-  onRegister: () => void;
   onLogout: () => void;
   session: string | null;
   isLoading: boolean;
@@ -37,9 +34,9 @@ const AuthContext = createContext<AuthType>({
     success: false,
     message: "Ei toteutettu",
   }),
-  onRegister: () => ({
+  onVerify: async () => ({
     success: false,
-    message: "Ei rekisteröity",
+    message: "Ei toteutettu",
   }),
   onLogout: () => {},
   session: null,
@@ -79,8 +76,7 @@ export function AuthProvider({ children }: PropsWithChildren<{}>) {
   useProtectedRoute(session);
 
   const onLogin = async (
-    username: string,
-    password: string
+    email: string
   ): Promise<{
     success: boolean;
     message: string;
@@ -88,24 +84,15 @@ export function AuthProvider({ children }: PropsWithChildren<{}>) {
   }> => {
     try {
       // Lähetä kirjautumispyyntö backendille
-      const result = await axios.post(`${API_URL}/auth/login`, {
-        username,
-        password,
+      await axios.post(`${API_URL}/auth/request`, {
+        email,
       });
-      const { token, user } = result.data;
-      console.log({
-        token,
-        id: user.id,
-        username: user.username,
-        created: user.created_at,
-        updated: user.updated_at,
-      });
-      setTimeout;
-      await setSession(token);
-      // Aseta Axiosin oletuspääotsikko, jotta kaikki pyynnöt ovat autentikoituja
-      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
-      return { success: true, message: "Kirjautuminen onnistui" };
+      // OTP lähetetty onnistuneesti
+      return {
+        success: true,
+        message: "OTP on lähetetty sähköpostiisi. Tarkista postilaatikkosi.",
+      };
     } catch (error) {
       // 401 Unauthorized
       if ((error as any).response?.status === 401) {
@@ -126,7 +113,59 @@ export function AuthProvider({ children }: PropsWithChildren<{}>) {
       };
     }
   };
-  const onRegister = async () => {};
+  const onVerify = async (
+    email: string,
+    otp: string
+  ): Promise<{
+    success: boolean;
+    message: string;
+    error?: boolean;
+  }> => {
+    try {
+      // Lähetä kirjautumispyyntö backendille
+      const result = await axios.post(`${API_URL}/auth/verify`, {
+        email,
+        otp,
+      });
+
+      // Tarkistetaan, että pyyntö onnistui
+      if (result.status === 200) {
+        const { token, user } = result.data;
+        console.log({
+          token,
+          id: user.id,
+          username: user.username,
+          created: user.created_at,
+          updated: user.updated_at,
+        });
+        setTimeout;
+        await setSession(token);
+        // Aseta Axiosin oletuspääotsikko, jotta kaikki pyynnöt ovat autentikoituja
+        axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+        return { success: true, message: "Kirjautuminen onnistui" };
+      } else {
+        return {
+          success: false,
+          message: "Tuntematon virhe tapahtui. Yritä uudelleen.",
+          error: true,
+        };
+      }
+    } catch (error) {
+      console.error("OTP verification failed:", error);
+
+      // Tarkista, onko virhe verkko-ongelmia vai muuta
+      const errorMessage = (error as any).response?.data?.message
+        ? (error as any).response.data.message
+        : "Jokin meni pieleen. Tarkista yhteytesi ja yritä uudelleen.";
+
+      return {
+        success: false,
+        message: errorMessage,
+        error: true,
+      };
+    }
+  };
   const onLogout = async () => {
     await setSession(null);
     delete axios.defaults.headers.common["Authorization"];
@@ -134,9 +173,9 @@ export function AuthProvider({ children }: PropsWithChildren<{}>) {
   return (
     <AuthContext.Provider
       value={{
-        onRegister,
         onLogin,
         onLogout,
+        onVerify,
         session,
         isLoading,
       }}
