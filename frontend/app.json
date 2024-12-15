@@ -10,6 +10,7 @@
     "newArchEnabled": true,
 
     "ios": {
+      "usesAppleSignIn": true,
       "supportsTablet": true,
       "config": {
         "usesNonExemptEncryption": false
@@ -27,6 +28,7 @@
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      "expo-apple-authentication",
       "expo-router",
       [
         "expo-splash-screen",

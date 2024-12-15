@@ -23,12 +23,12 @@ const SplashScreen = ({ onAnimationFinished }: SplashScreenProps) => {
         duration: 400,
         easing: Easing.out(Easing.ease),
       });
-    }, 3000);
+    }, 2000);
 
     // Kutsu callback, kun poistumisanimaatio on valmis
     const finishTimeout = setTimeout(() => {
       onAnimationFinished();
-    }, 3400);
+    }, 2400);
 
     return () => {
       clearTimeout(exitTimeout);
@@ -50,7 +50,7 @@ const SplashScreen = ({ onAnimationFinished }: SplashScreenProps) => {
 
   return (
     <Animated.View style={[styles.container, containerStyle]}>
-      <Animated.Text style={[styles.text]}>Matsi</Animated.Text>
+      <Animated.Text style={[styles.text]}>MATSI</Animated.Text>
     </Animated.View>
   );
 };

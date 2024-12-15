@@ -1,7 +1,7 @@
 import { Slot } from "expo-router";
 import { hideAsync, preventAutoHideAsync } from "expo-splash-screen";
 import { useFonts } from "expo-font";
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import { AuthProvider } from "@/context/useAuth";
 import { StatusBar } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
@@ -11,6 +11,13 @@ import SplashScreen from "@/components/Splash/SplashScreen";
 export { ErrorBoundary } from "expo-router";
 // SplashScreen
 preventAutoHideAsync();
+
+// Context animaatioiden hallintaan
+const AnimationContext = createContext(false);
+
+export function useAnimationReady() {
+  return useContext(AnimationContext);
+}
 
 export default function RootLayout() {
   const [ready, setReady] = useState(false);
@@ -37,7 +44,9 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AuthProvider>
         <StatusBar barStyle={"dark-content"} />
-        <Slot />
+        <AnimationContext.Provider value={showTheSplash}>
+          <Slot />
+        </AnimationContext.Provider>
         {showTheSplash && (
           <SplashScreen
             onAnimationFinished={() => setSplashAnimationFinished(true)}
