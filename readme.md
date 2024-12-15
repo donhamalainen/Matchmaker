@@ -52,8 +52,6 @@ Matsi Database Architecture
 
 COMING....
 
-## Summary
-
 ### Technologies Used
 
 - Node.js: Server-side runtime for handling requests and managing backend logic.
@@ -63,3 +61,5 @@ COMING....
 - JWT (JSON Web Tokens): For secure user authentication.
 
 ## Front-End
+
+COMING SOON....

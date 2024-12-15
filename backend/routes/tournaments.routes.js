@@ -7,7 +7,7 @@ const router = express.Router();
 // Käytä authenticateToken middlewarea kaikissa reiteissä tässä routerissa
 router.use(authenticateToken);
 
-// GET /api/matches/
+// GET /api/tournaments/
 router.get("/", async (req, res) => {
   try {
   } catch (error) {
@@ -16,9 +16,9 @@ router.get("/", async (req, res) => {
   }
 });
 
-// POST /api/matches/create
+// POST /api/tournaments/create
 router.post("/create", async (req, res) => {
-  const { match_name } = req.body;
+  const { tournament_name } = req.body;
   try {
   } catch (error) {
     console.error(error);
@@ -26,8 +26,8 @@ router.post("/create", async (req, res) => {
   }
 });
 
-// POST /api/matches/join/:id
-router.post("/join/:match_id", async (req, res) => {
+// POST /api/tournaments/join/:id
+router.post("/join/:tournament_id", async (req, res) => {
   // Tarkista, että onko linkki oikea ja ottelu olemassa
   try {
   } catch (e) {
@@ -37,7 +37,7 @@ router.post("/join/:match_id", async (req, res) => {
       .json({ error: "Ottelun liittymisessä tapahtui virhe" });
   }
 });
-// DELETE /api/matches/:id
+// DELETE /api/tournaments/:id
 router.delete("/:id", async (req, res) => {
   try {
   } catch (error) {
