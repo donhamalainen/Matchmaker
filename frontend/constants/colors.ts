@@ -1,6 +1,7 @@
 export const COLORS = {
   primary: "#A59D84",
   secondary: "#C1BAA1",
+
   // Text
   inputText: "#355F2E",
   buttonText: "#2A3335",
