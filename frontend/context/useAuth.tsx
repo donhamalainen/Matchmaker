@@ -18,6 +18,11 @@ type AuthType = {
     message: string;
     error?: boolean;
   }>;
+  onAppleLogin: (identityToken: string) => Promise<{
+    success: boolean;
+    message: string;
+    error?: boolean;
+  }>;
   onLogout: () => void;
   session: string | null;
   isLoading: boolean;
@@ -35,6 +40,10 @@ const AuthContext = createContext<AuthType>({
     message: "Ei toteutettu",
   }),
   onVerify: async () => ({
+    success: false,
+    message: "Ei toteutettu",
+  }),
+  onAppleLogin: async () => ({
     success: false,
     message: "Ei toteutettu",
   }),
@@ -166,6 +175,36 @@ export function AuthProvider({ children }: PropsWithChildren<{}>) {
       };
     }
   };
+  const onAppleLogin = async (
+    identityToken: string
+  ): Promise<{
+    success: boolean;
+    message: string;
+    error?: boolean;
+  }> => {
+    try {
+      const result = await axios.post(`${API_URL}/auth/apple`, {
+        identityToken,
+      });
+      const { token } = result.data;
+
+      // Jos kirjautuminen onnistui
+      await setSession(token);
+      // Aseta Axiosin oletuspääotsikko, jotta kaikki pyynnöt ovat autentikoituja
+      axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      return { success: true, message: "Kirjautuminen onnistui" };
+    } catch (error: any) {
+      console.error(
+        "Virhe Apple-kirjautumisessa:",
+        error.response?.data || error
+      );
+      return {
+        success: false,
+        message: "Virhe Apple-kirjautumisessa",
+        error: true,
+      };
+    }
+  };
   const onLogout = async () => {
     await setSession(null);
     delete axios.defaults.headers.common["Authorization"];
@@ -175,6 +214,7 @@ export function AuthProvider({ children }: PropsWithChildren<{}>) {
       value={{
         onLogin,
         onLogout,
+        onAppleLogin,
         onVerify,
         session,
         isLoading,

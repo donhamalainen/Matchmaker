@@ -13,9 +13,7 @@ import { useAuth } from "@/context/useAuth";
 import { router } from "expo-router";
 import { useState } from "react";
 import AppleAuth from "@/components/Authentication/AppleAuthentication";
-import Octicons from "@expo/vector-icons/Octicons";
-import { ICON_SIZE_SMALL } from "@/constants/sizing";
-import Svg, { G, Path, Rect } from "react-native-svg";
+import Svg, { G, Path } from "react-native-svg";
 
 export default function SignScreen() {
   const [email, setEmail] = useState<string>("hamalainen.don@gmail.com");
@@ -54,7 +52,7 @@ export default function SignScreen() {
           }
           style={{ backgroundColor: COLORS.lightBackground }}
           title="Jatka sähköpostilla"
-          onPress={() => console.log("Jatka sähköpostilla")}
+          onPress={() => handleLogin(email)}
         />
       </View>
 

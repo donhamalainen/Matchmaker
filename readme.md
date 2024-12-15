@@ -2,7 +2,7 @@
 
 Matsi is an application designed to provide users with detailed statistics about their games. Games can range from board games to PlayStation matches, or any competition where two users engage against each other.
 
-## BACKEND
+## Back-End & Database
 
 The backend of the Matsi application relies on a structured and scalable database architecture to manage user information, game statistics, and related data. Below is the visual representation of the database structure:
 
@@ -42,12 +42,15 @@ Matsi Database Architecture
 
 ## Server endpoints
 
-### Authentication Endpoints
+### Authentication endpoints
 
 - POST api/auth/request
 - POST api/auth/verify
-- GET /api/user/profile
-- PUT /api/user/profile
+- POST api/auth/apple
+
+### Users endpoints
+
+COMING....
 
 ## Summary
 
@@ -58,6 +61,5 @@ Matsi Database Architecture
 - PostgreSQL: Database for storing relational data.
 - Nodemailer: Used for sending email-based OTPs.
 - JWT (JSON Web Tokens): For secure user authentication.
-- bcrypt: For hashing sensitive user data like OTPs (if required).
 
-## FRONTEND
+## Front-End

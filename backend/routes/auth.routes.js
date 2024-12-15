@@ -1,5 +1,5 @@
 const express = require("express");
-const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 const db = require("../database");
 const { signToken } = require("../utils/jwt");
 const generateOTP = require("../utils/otp");
@@ -18,10 +18,9 @@ router.post("/request", async (req, res) => {
       email,
     ]);
     const user = userData.rows[0];
-
-    // OTP
     const otp = generateOTP();
-    //
+
+    // Update or insert the user in the database
     if (user) {
       await db.query("UPDATE users SET otp_verify = $1 WHERE email = $2", [
         otp,
@@ -79,6 +78,52 @@ router.post("/verify", async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Virhe OTP:n tarkistuksessa" });
+  }
+});
+
+// POST /api/auth/apple
+router.post("/apple", async (req, res) => {
+  const { identityToken, email } = req.body;
+  if (!identityToken) {
+    return res.status(400).json({ error: "Identity token on pakollinen." });
+  }
+  try {
+    // Decode the identity token
+    const decodedToken = jwt.decode(identityToken, { complete: true });
+
+    if (!decodedToken) {
+      return res.status(400).json({ error: "Virheellinen identity token." });
+    }
+    const { email_verified, email } = decodedToken.payload;
+    if (!email_verified) {
+      return res.status(401).json({ error: "Sähköpostia ei ole vahvistettu." });
+    }
+
+    // Tarkista, onko käyttäjä jo olemassa
+    let userData = await db.query("SELECT * FROM users WHERE email = $1", [
+      email,
+    ]);
+
+    if (!userData.rows.length) {
+      // Luo uusi käyttäjä, jos sähköpostia ei löydy tietokannasta
+      await db.query("INSERT INTO users (email, provider) VALUES ($1, $2)", [
+        email,
+        "Apple",
+      ]);
+
+      userData = await db.query("SELECT * FROM users WHERE email = $1", [
+        email,
+      ]);
+    }
+
+    // Luo ja palauta JWT-token
+    const user = userData.rows[0];
+    const token = signToken(user);
+
+    res.status(200).json({ message: "Kirjautuminen onnistui", token, user });
+  } catch (error) {
+    console.error("Error validating Apple token:", error);
+    res.status(500).json({ error: "Apple-kirjautuminen epäonnistui" });
   }
 });
 

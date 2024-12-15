@@ -1,26 +1,30 @@
-import { Alert, StyleSheet, TouchableOpacity } from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
 import React from "react";
 import { Text } from "../Text";
 import * as AppleAuthentication from "expo-apple-authentication";
-import Svg, { G, Path, Rect } from "react-native-svg";
+import Svg, { G, Path } from "react-native-svg";
 import { COLORS } from "@/constants/colors";
+import { useAuth } from "@/context/useAuth";
 
 const AppleAuth = () => {
+  const { onAppleLogin } = useAuth();
   const handleAppleSignIn = async () => {
     try {
       const credential = await AppleAuthentication.signInAsync({
         requestedScopes: [AppleAuthentication.AppleAuthenticationScope.EMAIL],
       });
+      const { identityToken } = credential;
 
-      // Palauta käyttäjän tiedot backendille
-      console.log(
-        "Apple Sign-In Credential:",
-        credential.email,
-        credential.identityToken
-      );
+      if (!identityToken) {
+        throw new Error("Identity token puuttuu.");
+      }
+
+      await onAppleLogin(identityToken);
     } catch (error: any) {
-      if (error === "ERR_CANCELED") {
-        console.log("Kirjautuminen peruuttu");
+      if (error.code === "ERR_CANCELED") {
+        console.log("Käyttäjä peruutti kirjautumisen.");
+      } else {
+        console.error("Apple kirjautumisessa tapahtui virhe:", error);
       }
     }
   };

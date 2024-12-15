@@ -9,11 +9,10 @@
     "test": "jest --config=jest.config.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "Don Hämäläinen",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "bcrypt": "^5.1.1",
     "dotenv": "^16.4.7",
     "express": "^4.21.1",
     "jsonwebtoken": "^9.0.2",
