@@ -20,15 +20,13 @@ export default function SignScreen() {
   const { onLogin } = useAuth();
 
   const handleLogin = async (email: string) => {
-    const result = await onLogin(email);
-    if (result.success) {
-      router.replace({
-        pathname: "/(auth)/verify",
-        params: { email },
-      });
-    } else {
-      alert(result.message);
-    }
+    // const result = await onLogin(email);
+    // if (result.success) {
+    router.replace({
+      pathname: "/(auth)/verify",
+      params: { email },
+    });
+    //}
   };
   return (
     <ScreenView>

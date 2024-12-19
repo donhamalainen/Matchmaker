@@ -6,6 +6,7 @@ import { AuthProvider } from "@/context/useAuth";
 import { StatusBar } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import SplashScreen from "@/components/Splash/SplashScreen";
+import { AlarmProvider } from "@/context/useAlarm";
 
 // Default things
 export { ErrorBoundary } from "expo-router";
@@ -42,17 +43,19 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <AuthProvider>
-        <StatusBar barStyle={"dark-content"} />
-        <AnimationContext.Provider value={showTheSplash}>
-          <Slot />
-        </AnimationContext.Provider>
-        {showTheSplash && (
-          <SplashScreen
-            onAnimationFinished={() => setSplashAnimationFinished(true)}
-          />
-        )}
-      </AuthProvider>
+      <AlarmProvider>
+        <AuthProvider>
+          <StatusBar barStyle={"dark-content"} />
+          <AnimationContext.Provider value={showTheSplash}>
+            <Slot />
+          </AnimationContext.Provider>
+          {showTheSplash && (
+            <SplashScreen
+              onAnimationFinished={() => setSplashAnimationFinished(true)}
+            />
+          )}
+        </AuthProvider>
+      </AlarmProvider>
     </GestureHandlerRootView>
   );
 }

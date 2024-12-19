@@ -3,6 +3,7 @@ import { useStorageState } from "./useStorageState";
 import { useRouter, useSegments } from "expo-router";
 import axios from "axios";
 import { getStorageItemAsync } from "@/utils/storage";
+import { useAlarm } from "./useAlarm";
 
 type AuthType = {
   onLogin: (email: string) => Promise<{
@@ -28,12 +29,13 @@ type AuthType = {
   isLoading: boolean;
 };
 
-const API_URL = process.env.API_URL || "http://192.168.76.182:3000/api";
-// const API_URL =
-//   process.env.NETWORK === "home"
-//     ? "http://192.168.76.182:3000/api"
-//     : "http://172.20.10.2:3000/api";
+const NETWORK = "home";
+const API_URL =
+  NETWORK === "home"
+    ? "http://192.168.76.182:3000/api"
+    : "http://172.20.10.2:3000/api";
 
+console.log(API_URL);
 const AuthContext = createContext<AuthType>({
   onLogin: async () => ({
     success: false,
@@ -80,6 +82,7 @@ function useProtectedRoute(session: string | null) {
 }
 
 export function AuthProvider({ children }: PropsWithChildren<{}>) {
+  const { showAlarm } = useAlarm();
   const [[isLoading, session], setSession] = useStorageState("session");
 
   useProtectedRoute(session);
@@ -102,22 +105,36 @@ export function AuthProvider({ children }: PropsWithChildren<{}>) {
         success: true,
         message: "OTP on lähetetty sähköpostiisi. Tarkista postilaatikkosi.",
       };
-    } catch (error) {
-      // 401 Unauthorized
-      if ((error as any).response?.status === 401) {
-        return {
-          success: false,
-          message: "Väärä käyttäjänimi tai salasana",
-          error: true,
-        };
+    } catch (error: any) {
+      // Tarkistetaan verkko-ongelma
+      if (!error.response) {
+        showAlarm({
+          type: "error",
+          title: "Verkkovirhe",
+          message: "Ei yhteyttä palvelimeen. Tarkista verkkoyhteytesi.",
+        });
       }
-
-      // Käsittele muut virheet
+      // Tarkistetaan 500 (palvelinvirhe)
+      else if (error.response.status === 500) {
+        showAlarm({
+          type: "error",
+          title: "Palvelinvirhe",
+          message: "Palvelimella tapahtui virhe. Yritä myöhemmin uudelleen.",
+        });
+      }
+      // Muu virhe
+      else {
+        showAlarm({
+          type: "error",
+          title: "Tuntematon virhe",
+          message:
+            error.response?.data?.message ||
+            "Jokin meni pieleen. Tarkista yhteytesi ja yritä uudelleen.",
+        });
+      }
       return {
         success: false,
-        message:
-          (error as any).response?.data?.message ||
-          "Jokin meni pieleen. Tarkista yhteytesi ja yritä uudelleen.",
+        message: "Virhe Sähköposti-kirjautumisessa",
         error: true,
       };
     }
@@ -188,16 +205,39 @@ export function AuthProvider({ children }: PropsWithChildren<{}>) {
       });
       const { token } = result.data;
 
+      console.log(result);
       // Jos kirjautuminen onnistui
       await setSession(token);
       // Aseta Axiosin oletuspääotsikko, jotta kaikki pyynnöt ovat autentikoituja
       axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       return { success: true, message: "Kirjautuminen onnistui" };
     } catch (error: any) {
-      console.error(
-        "Virhe Apple-kirjautumisessa:",
-        error.response?.data || error
-      );
+      // Tarkistetaan verkko-ongelma
+      if (!error.response) {
+        showAlarm({
+          type: "error",
+          title: "Verkkovirhe",
+          message: "Ei yhteyttä palvelimeen. Tarkista verkkoyhteytesi.",
+        });
+      }
+      // Tarkistetaan 500 (palvelinvirhe)
+      else if (error.response.status === 500) {
+        showAlarm({
+          type: "error",
+          title: "Palvelinvirhe",
+          message: "Palvelimella tapahtui virhe. Yritä myöhemmin uudelleen.",
+        });
+      }
+      // Muu virhe
+      else {
+        showAlarm({
+          type: "error",
+          title: "Tuntematon virhe",
+          message:
+            error.response?.data?.message ||
+            "Jokin meni pieleen. Tarkista yhteytesi ja yritä uudelleen.",
+        });
+      }
       return {
         success: false,
         message: "Virhe Apple-kirjautumisessa",

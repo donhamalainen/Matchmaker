@@ -17,6 +17,7 @@ export default function AuthLayout() {
     <Stack screenOptions={{ headerShown: false }}>
       <Stack.Screen name="sign" />
       <Stack.Screen name="onboarding" />
+      <Stack.Screen name="verify" />
     </Stack>
   );
 }

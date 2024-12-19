@@ -11,6 +11,7 @@ export type TextVariant =
   | "title"
   | "body"
   | "bodySmall"
+  | "bodyLarge"
   | "buttonBody"
   | "headline1"
   | "input";
@@ -27,7 +28,7 @@ export const TextStyles = StyleSheet.create({
   title: {
     fontFamily: "ChillaxMedium",
     fontSize: 32,
-    color: COLORS.primary,
+    color: COLORS.black,
   },
   headline1: {
     fontSize: 20,
@@ -40,10 +41,15 @@ export const TextStyles = StyleSheet.create({
     fontFamily: "ChillaxMedium",
     color: COLORS.buttonText,
   },
+  bodyLarge: {
+    fontSize: 16,
+    fontFamily: "GeneralSansRegular",
+    color: COLORS.black,
+  },
   body: {
     fontSize: 14,
     fontFamily: "GeneralSansRegular",
-    color: COLORS.primary,
+    color: COLORS.black,
   },
   bodySmall: {
     fontSize: 12,

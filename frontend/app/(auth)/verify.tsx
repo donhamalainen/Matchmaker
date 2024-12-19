@@ -1,115 +1,77 @@
-import {
-  Alert,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import React, { useState } from "react";
+import { StyleSheet, View } from "react-native";
+import React from "react";
 import { ScreenView } from "@/components/ScreenView";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { useAuth } from "@/context/useAuth";
-import { COLORS } from "@/constants/colors";
+import { useAlarm } from "@/context/useAlarm";
+import { Text } from "@/components/Text";
+import VerifyInput from "@/components/VerifyInput";
 
-const Verify = () => {
+export default function Verify() {
+  const { showAlarm } = useAlarm();
   const { onVerify } = useAuth();
-  const [otp, setOtp] = useState<string>("");
   const { email } = useLocalSearchParams<{ email: string }>();
   const router = useRouter();
 
-  const handleVerify = async () => {
+  const handleComplete = async (otp: string) => {
     if (otp.length === 6) {
       try {
         const result = await onVerify(email, otp);
         if (result.success) {
-          Alert.alert("Kirjautuminen onnistui", result.message);
+          showAlarm({
+            type: "success",
+            message: "Kirjautuminen onnistui",
+            title: "Onnittelut!",
+          });
           router.replace("/(tabs)/home");
         } else {
-          Alert.alert("Virhe", result.message);
+          showAlarm({
+            type: "error",
+            message: "Vahvsituskoodi ei ole kelvolinen.",
+            title: "Tarkista!",
+          });
         }
       } catch (error) {
-        Alert.alert("Virhe", "Jokin meni pieleen. Yritä uudelleen.");
+        showAlarm({
+          type: "error",
+          message:
+            "Yritä uudelleen hetken kuluttua tai uudelleenkäynnistä sovellus.",
+          title: "Jokin meni pieleen.",
+        });
       }
     } else {
-      Alert.alert("Virhe", "Syötä 6-numeroinen OTP.");
+      showAlarm({
+        type: "warning",
+        message: "Ole hyvä ja syötä 6-numeroinen vahvistuskoodi.",
+        title: "Etkö sä osaa?",
+      });
     }
   };
-
   return (
     <ScreenView>
-      <View style={styles.container}>
-        <Text style={styles.title}>Syötä vahvistuskoodi</Text>
-        <Text style={styles.subtitle}>
-          Vahvistuskoodi on lähetetty osoitteeseen {email}.
+      <View style={styles.header}>
+        <Text variant="title">Anna vahvistuskoodi</Text>
+        <Text variant="bodyLarge">
+          Tämä auttaa meitä varmistamaan henkilöllisyytesi ja suojaamaan tilisi.
         </Text>
-        <TextInput
-          style={styles.input}
-          keyboardType="numeric"
-          maxLength={6}
-          placeholder="123456"
-          value={otp}
-          onChangeText={setOtp}
-        />
-        <TouchableOpacity style={styles.button} onPress={handleVerify}>
-          <Text style={styles.buttonText}>Vahvista</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => router.push({ pathname: "/(auth)/sign" })}
-        >
-          <Text style={styles.resendText}>Syötä sähköposti uudelleen</Text>
-        </TouchableOpacity>
+      </View>
+      <View style={styles.verifyContainer}>
+        <Text variant="bodyLarge">
+          Vahvistuskoodi on lähetetty {email} ja se on voimassa 60 sekunttia
+        </Text>
+        <VerifyInput onComplete={(otp) => handleComplete(otp)} />
       </View>
     </ScreenView>
   );
-};
-
-export default Verify;
+}
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  header: {
+    gap: 10,
+  },
+  verifyContainer: {
+    flex: 0.5,
     justifyContent: "center",
-    alignItems: "center",
-    padding: 20,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: COLORS.primary,
-    marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: COLORS.primary,
-    textAlign: "center",
-    marginBottom: 20,
-  },
-  input: {
-    width: "80%",
-    padding: 10,
-    borderWidth: 1,
-    borderColor: COLORS.background,
-    borderRadius: 8,
-    textAlign: "center",
-    fontSize: 18,
-    marginBottom: 20,
-  },
-  button: {
-    backgroundColor: COLORS.primary,
-    paddingVertical: 15,
-    paddingHorizontal: 50,
-    borderRadius: 8,
-    marginBottom: 20,
-  },
-  buttonText: {
-    color: COLORS.white,
-    fontWeight: "bold",
-    fontSize: 16,
-  },
-  resendText: {
-    color: COLORS.secondary,
-    textDecorationLine: "underline",
-    fontSize: 14,
+    gap: 20,
   },
 });
